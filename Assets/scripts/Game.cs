@@ -5,13 +5,17 @@ using UnityEngine.UI;
 
 public class Game : MonoBehaviour
 {
+  
     public SteeringWheel cover;
     public SteeringWheel outer;
+  
     public Text ques;
     public Text value;
     public Text intervalText;
+  
     public Timer slider;
     public Timer[] locks;
+    public Image openSafe;
 
     bool levelup;
     bool start = true;
@@ -55,6 +59,8 @@ public class Game : MonoBehaviour
                 ques.text = "Open Safe";
                 intervalText.text = "";
                 yield return new WaitWhile(() => outer.GetAngle() != 90);
+                ///kasa açýlma animasyonu
+                ///kasa animasyonu bitiþini beklet
                 levelup = false;
             }
             start = false;
