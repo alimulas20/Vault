@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
 
 public class Play : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class Play : MonoBehaviour
     public Image Intro;
     public Image IntroButton;
     public GameObject Player;
+    public TextMeshProUGUI ButtonText;
 
     // Start is called before the first frame update
     void Start()
@@ -31,8 +33,10 @@ public class Play : MonoBehaviour
     public void PlayButton()
     {
         Intro.DOFade(0, 1f).SetAutoKill();
-        IntroButton.DOFade(0, 1f).SetAutoKill();
+        IntroButton.DOFade(0, .5f).SetAutoKill();
+        ButtonText.DOFade(0, .5f);
         Game.gameObject.SetActive(true);
         GM.SetActive(true);
+        GM.GetComponent<Game>().slider.start = true;
     }
 }

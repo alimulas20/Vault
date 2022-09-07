@@ -10,8 +10,10 @@ public class Timer : MonoBehaviour
     public bool stopTimer;
     public bool start;
     private bool first =true;
+    float startTime;
     void Start()
     {
+        startTime = gameTime;
         stopTimer = false;
         timer.maxValue = gameTime;
         timer.value = gameTime;
@@ -20,9 +22,11 @@ public class Timer : MonoBehaviour
     {
         if (start)
         {
+           
             if (first)
             {
-                gameTime += Time.time;
+                
+                gameTime = timer.maxValue+ Time.time;
                 first = false;
             }
                 
@@ -37,8 +41,17 @@ public class Timer : MonoBehaviour
             if (stopTimer == false)
             {
                 timer.value = time;
+                
             }
         }
         
+    }
+    public void resTime()
+    {
+        timer.value = gameTime;
+        first = true;
+        stopTimer = false;
+        start = false;
+
     }
 }

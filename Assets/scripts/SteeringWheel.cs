@@ -15,9 +15,10 @@ public class SteeringWheel : MonoBehaviour
     public float wheelReleasedSpeed = 200f;
     public bool init;
     public bool turnback;
+    bool turn;
     float wheelAngle = 0f;
     float wheelPrevAngle = 0f;
-
+    EventTrigger events;
     bool wheelBeingHeld = false;
 
     public float GetClampedValue()
@@ -43,7 +44,7 @@ public class SteeringWheel : MonoBehaviour
             InitEventsSystem();
             init = false;
         }
-        
+        turn = true;
     }
 
     void Update()
@@ -52,6 +53,7 @@ public class SteeringWheel : MonoBehaviour
         {
             init = false;
             InitEventsSystem();
+           
         }
         // If the wheel is released, reset the rotation
         // to initial (zero) rotation by wheelReleasedSpeed degrees per second
@@ -76,7 +78,7 @@ public class SteeringWheel : MonoBehaviour
     {
         // Warning: Be ready to see some extremely boring code here :-/
         // You are warned!
-        EventTrigger events = UI_Element.gameObject.GetComponent<EventTrigger>();
+        events = UI_Element.gameObject.GetComponent<EventTrigger>();
 
         if (events == null)
             events = UI_Element.gameObject.AddComponent<EventTrigger>();
@@ -113,45 +115,65 @@ public class SteeringWheel : MonoBehaviour
             //otomatik geri sarma kýsmý 
             events.triggers.Add(entry);
         }
+
         
     }
 
     public void PressEvent(BaseEventData eventData)
     {
-        // Executed when mouse/finger starts touching the steering wheel
-        Vector2 pointerPos = ((PointerEventData)eventData).position;
+        if (turn)
+        {
+            // Executed when mouse/finger starts touching the steering wheel
+            Vector2 pointerPos = ((PointerEventData)eventData).position;
 
-        wheelBeingHeld = true;
-        centerPoint = RectTransformUtility.WorldToScreenPoint(((PointerEventData)eventData).pressEventCamera, rectT.position);
-        wheelPrevAngle = Vector2.Angle(Vector2.up, pointerPos - centerPoint);
+            wheelBeingHeld = true;
+            centerPoint = RectTransformUtility.WorldToScreenPoint(((PointerEventData)eventData).pressEventCamera, rectT.position);
+            wheelPrevAngle = Vector2.Angle(Vector2.up, pointerPos - centerPoint);
+        }
+        
     }
 
     public void DragEvent(BaseEventData eventData)
     {
-        // Executed when mouse/finger is dragged over the steering wheel
-        Vector2 pointerPos = ((PointerEventData)eventData).position;
-
-        float wheelNewAngle = Vector2.Angle(Vector2.up, pointerPos - centerPoint);
-        // Do nothing if the pointer is too close to the center of the wheel
-        if (Vector2.Distance(pointerPos, centerPoint) > 20f)
+        if (turn)
         {
-            if (pointerPos.x > centerPoint.x)
-                wheelAngle += wheelNewAngle - wheelPrevAngle;
-            else
-                wheelAngle -= wheelNewAngle - wheelPrevAngle;
+            // Executed when mouse/finger is dragged over the steering wheel
+            Vector2 pointerPos = ((PointerEventData)eventData).position;
+
+            float wheelNewAngle = Vector2.Angle(Vector2.up, pointerPos - centerPoint);
+            // Do nothing if the pointer is too close to the center of the wheel
+            if (Vector2.Distance(pointerPos, centerPoint) > 20f)
+            {
+                if (pointerPos.x > centerPoint.x)
+                    wheelAngle += wheelNewAngle - wheelPrevAngle;
+                else
+                    wheelAngle -= wheelNewAngle - wheelPrevAngle;
+            }
+            // Make sure wheel angle never exceeds maximumSteeringAngle
+            wheelAngle = Mathf.Clamp(wheelAngle, -maximumSteeringAngle, maximumSteeringAngle);
+            wheelPrevAngle = wheelNewAngle;
         }
-        // Make sure wheel angle never exceeds maximumSteeringAngle
-        wheelAngle = Mathf.Clamp(wheelAngle, -maximumSteeringAngle, maximumSteeringAngle);
-        wheelPrevAngle = wheelNewAngle;
+        
     }
 
     public void ReleaseEvent(BaseEventData eventData)
     {
-        // Executed when mouse/finger stops touching the steering wheel
-        // Performs one last DragEvent, just in case
-        DragEvent(eventData);
+        if (turn)
+        {
+            // Executed when mouse/finger stops touching the steering wheel
+            // Performs one last DragEvent, just in case
+            DragEvent(eventData);
 
-        wheelBeingHeld = false;
+            wheelBeingHeld = false;
+        }
+        
     }
-  
+    public void stopTurn()
+    {
+        turn = false;
+    }
+    public void startTurn()
+    {
+        turn = true;
+    }
 }
